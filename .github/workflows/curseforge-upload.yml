@@ -1,0 +1,41 @@
+name: Release to CurseForge
+
+on:
+  workflow_dispatch:
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Extract version from TOC
+        id: get_version
+        run: |
+          VERSION=$(grep -i '^## Version:' GigaBooster.toc | head -n1 | cut -d':' -f2 | xargs)
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Create tag if not exists
+        run: |
+          git fetch --tags
+          if ! git rev-parse "v${{ steps.get_version.outputs.version }}" >/dev/null 2>&1; then
+            git config user.name "github-actions"
+            git config user.email "github-actions@github.com"
+            git tag "v${{ steps.get_version.outputs.version }}"
+            git push origin "v${{ steps.get_version.outputs.version }}"
+          fi
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install wow-packager
+        run: npm install -g wow-packager
+
+      - name: Package and upload to CurseForge
+        env:
+          CF_API_KEY: ${{ secrets.CF_API_KEY }}
+        run: |
+          wow-packager . --release-type=release --version="${{ steps.get_version.outputs.version }}" --curse-id=1267028 --token="$CF_API_KEY"
