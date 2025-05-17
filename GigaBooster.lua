@@ -114,7 +114,6 @@ function PrintAllKeystones()
         local dungeon = data.currKeystoneDungeon or "None"
         local level = data.currKeyStoneLevel or "-"
         print(char .. ": " .. dungeon .. " (" .. level .. ")")
-        print(char .. ": " .. dungeon .. " (" .. level .. ")")
     end
 end
 
