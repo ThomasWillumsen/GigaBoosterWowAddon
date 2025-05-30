@@ -106,7 +106,8 @@
         "NUM_BAG_SLOTS",
         "NEW_ITEM_ATLAS_BY_QUALITY",
         "OpenBag",
-        "IsBagOpen"
+        "IsBagOpen",
+        "LE_PARTY_CATEGORY_INSTANCE"
     ],
     "Lua.diagnostics.disable": [
         "assign-type-mismatch"

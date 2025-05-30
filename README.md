@@ -7,8 +7,8 @@ GigaBooster is a World of Warcraft addon that tracks your character's Mythic Key
 - **Automatically saves your current Mythic Keystone** (dungeon, level, and item link) whenever it changes.
 - **Tracks your average item level** (both total and equipped).
 - **Records your Mythic+ rating**.
-- **Stores data for all your characters** on the same account and realm.
-- **Simple slash command** to view all your characters' keystones.
+- **Stores data for all your characters**.
+- **Simple slash commands** to view all your characters' keystones.
 
 ## How It Works
 
@@ -16,19 +16,10 @@ GigaBooster listens for relevant in-game events (like logging in, getting a new 
 
 ## Usage
 
-### Viewing All Keystones
+### Commands
 
-To see a list of all your characters' current keystones, type in the chat:
-
-```
-/gb keys
-```
-or
-```
-/gigabooster keys
-```
-
-This will print a list of all characters with their current keystone dungeon and level.
+`/gb keys` - To see a list of all your characters' current keystones
+`/gb vault` - To see a list of all your characters' m+ runs at +10 or higher
 
 ### Example Output
 
