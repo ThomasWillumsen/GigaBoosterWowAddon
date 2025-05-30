@@ -47,7 +47,7 @@ local function onEvent(self, event, ...)
     elseif event == "WEEKLY_REWARDS_UPDATE" then
         logDebug("EVENT [WEEKLY_REWARDS_UPDATE]")
         -- uncommented for now, because it keeps triggering too early to register the newest run
-        -- SaveWeeklyMPlus10RunsCount()
+        SaveWeeklyMPlus10RunsCount()
     elseif event == "UNIT_INVENTORY_CHANGED" then
         logDebug("EVENT [UNIT_INVENTORY_CHANGED]")
         SaveItemLevel()
@@ -110,7 +110,7 @@ function GetCharDb()
             avgItemLevel = nil,
             avgItemLevelEquipped = nil,
             mythicPlusRating = nil,
-            weeklyMPlus10RunsCount = 0,
+            weeklyMPlus10RunsCount = nil,
         }
     end
 
@@ -143,6 +143,10 @@ function SaveWeeklyMPlus10RunsCount()
     logDebug("Weekly M+10 Runs Count: " .. plus10Runs)
 
     local charDb = GetCharDb()
+    if charDb.weeklyMPlus10RunsCount == nil then
+        charDb.weeklyMPlus10RunsCount = 0
+    end
+
     if (plus10Runs < charDb.weeklyMPlus10RunsCount) then
         logDebug("Warning: Weekly M+10 runs count decreased from " ..
             charDb.weeklyMPlus10RunsCount .. " to " .. plus10Runs)
@@ -199,4 +203,4 @@ frame:SetScript("OnEvent", onEvent)
 ---@field avgItemLevel number | nil
 ---@field avgItemLevelEquipped number | nil
 ---@field mythicPlusRating number | nil
----@field weeklyMPlus10RunsCount number
+---@field weeklyMPlus10RunsCount number | nil
