@@ -1,26 +1,38 @@
+local debugEnabled = false -- Set to false to disable debug messages
 local function logDebug(message)
-    local debugEnabled = false -- Set to false to disable debug messages
     if debugEnabled then
         print("GigaBooster: " .. message)
     end
 end
 
-
-
 logDebug("GigaBooster Addon Loaded")
 
+function GetNextWeeklyResetTimestamp()
+    local now = time()
+    local secondsUntilReset = C_DateAndTime.GetSecondsUntilWeeklyReset()
+    return now + secondsUntilReset
+end
 
 local frame = CreateFrame("Frame")
 local SLKeystoneItemId = 180653
 local currentCharKey = UnitName("player") .. "-" .. GetRealmName()
+local latestActiveKeystoneLevel = nil
+
 GigaBoosterDB = GigaBoosterDB or {}
+GigaBoosterDBMeta = GigaBoosterDBMeta or {
+    nextWeeklyReset = GetNextWeeklyResetTimestamp(),
+}
 
 local function onEvent(self, event, ...)
     if event == "PLAYER_ENTERING_WORLD" then
         local isInitialLogin, isReloadingUi = ...
+        if isInitialLogin then
+            logDebug("PLAYER_ENTERING_WORLD event: initial login")
+            MaybeResetWeeklyRuns()
+        end
         if not isInitialLogin and not isReloadingUi then
             logDebug("PLAYER_ENTERING_WORLD event: not initial login or UI reload")
-            SaveWeeklyMPlus10RunsCount() -- at this point, the weekly M+10 runs count is already registered. wont work if the player just logged in, because it would read previous char's session
+            -- SaveWeeklyMPlus10RunsCount() -- at this point, the weekly M+10 runs count is already registered. wont work if the player just logged in, because it would read previous char's session
             return
         else
             logDebug("EVENT [PLAYER_ENTERING_WORLD]")
@@ -41,18 +53,39 @@ local function onEvent(self, event, ...)
         logDebug("EVENT [CHALLENGE_MODE_COMPLETED]")
         SaveKeystone()
         SaveMythicPlusRating()
+        if (latestActiveKeystoneLevel >= 10) then
+            local charDb = GetCharDb()
+            local currentRunsCount = charDb.weeklyMPlus10RunsCount or 0
+            charDb.weeklyMPlus10RunsCount = currentRunsCount + 1
+            logDebug("Added 1 to Weekly M+10 Runs Count: " .. charDb.weeklyMPlus10RunsCount)
+        end
     elseif event == "CHALLENGE_MODE_START" then
         logDebug("EVENT [CHALLENGE_MODE_START]")
-        SaveKeystone()
+        -- get keylevel of current instance
+        latestActiveKeystoneLevel = C_ChallengeMode.GetActiveKeystoneInfo()
+        logDebug("Active Keystone Level: " .. latestActiveKeystoneLevel)
+        SaveKeystone() -- the keystone gets downgraded by 1 level at the start of the dungeon
     elseif event == "WEEKLY_REWARDS_UPDATE" then
         logDebug("EVENT [WEEKLY_REWARDS_UPDATE]")
         -- uncommented for now, because it keeps triggering too early to register the newest run
-        SaveWeeklyMPlus10RunsCount()
+        -- SaveWeeklyMPlus10RunsCount()
     elseif event == "UNIT_INVENTORY_CHANGED" then
         logDebug("EVENT [UNIT_INVENTORY_CHANGED]")
         SaveItemLevel()
     else
         logDebug("EVENT [" .. event .. "]")
+    end
+end
+
+
+function MaybeResetWeeklyRuns()
+    local now = time()
+    if not GigaBoosterDBMeta.nextWeeklyReset or now >= GigaBoosterDBMeta.nextWeeklyReset then
+        logDebug("Weekly reset detected, resetting all weekly M+10 runs.")
+        for _, charDb in pairs(GigaBoosterDB) do
+            charDb.weeklyMPlus10RunsCount = 0
+        end
+        GigaBoosterDBMeta.nextWeeklyReset = GetNextWeeklyResetTimestamp()
     end
 end
 
@@ -147,11 +180,6 @@ function SaveWeeklyMPlus10RunsCount()
         charDb.weeklyMPlus10RunsCount = 0
     end
 
-    if (plus10Runs < charDb.weeklyMPlus10RunsCount) then
-        logDebug("Warning: Weekly M+10 runs count decreased from " ..
-            charDb.weeklyMPlus10RunsCount .. " to " .. plus10Runs)
-        return
-    end
     GetCharDb().weeklyMPlus10RunsCount = plus10Runs
 end
 

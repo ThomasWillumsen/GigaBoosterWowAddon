@@ -5,7 +5,7 @@
 ## Version: @project-version@
 ## RequiredDeps:
 ## X-Curse-Project-ID: 1267028
-## SavedVariables: GigaBoosterDB
+## SavedVariables: GigaBoosterDB, GigaBoosterDBMeta
 # ## SavedVariablesPerCharacter:
 
 
