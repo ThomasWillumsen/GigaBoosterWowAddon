@@ -28,7 +28,7 @@ local function onEvent(self, event, ...)
         local isInitialLogin, isReloadingUi = ...
         if isInitialLogin then
             logDebug("PLAYER_ENTERING_WORLD event: initial login")
-            MaybeResetWeeklyRuns()
+            MaybeResetWeeklyStuff()
         end
         if not isInitialLogin and not isReloadingUi then
             logDebug("PLAYER_ENTERING_WORLD event: not initial login or UI reload")
@@ -78,12 +78,15 @@ local function onEvent(self, event, ...)
 end
 
 
-function MaybeResetWeeklyRuns()
+function MaybeResetWeeklyStuff()
     local now = time()
     if not GigaBoosterDBMeta.nextWeeklyReset or now >= GigaBoosterDBMeta.nextWeeklyReset then
         logDebug("Weekly reset detected, resetting all weekly M+10 runs.")
         for _, charDb in pairs(GigaBoosterDB) do
             charDb.weeklyMPlus10RunsCount = 0
+            charDb.currKeystoneDungeon = nil
+            charDb.currKeyStoneLevel = nil
+            charDb.currKeystoneLink = nil
         end
         GigaBoosterDBMeta.nextWeeklyReset = GetNextWeeklyResetTimestamp()
     end
