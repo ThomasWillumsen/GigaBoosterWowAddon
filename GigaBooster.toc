@@ -1,4 +1,4 @@
-## Interface: 110105
+## Interface: 110107
 ## Title: GigaBooster
 ## Notes: Store ilvl, m+ rating and mythic keystone in a local file for all characters
 ## Author: Nakkegreb
@@ -7,6 +7,5 @@
 ## X-Curse-Project-ID: 1267028
 ## SavedVariables: GigaBoosterDB, GigaBoosterDBMeta
 # ## SavedVariablesPerCharacter:
-
 
 GigaBooster.lua
